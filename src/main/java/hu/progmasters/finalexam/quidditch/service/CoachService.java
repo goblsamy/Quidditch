@@ -3,6 +3,7 @@ package hu.progmasters.finalexam.quidditch.service;
 import hu.progmasters.finalexam.quidditch.domain.Club;
 import hu.progmasters.finalexam.quidditch.domain.Coach;
 import hu.progmasters.finalexam.quidditch.domain.Player;
+import hu.progmasters.finalexam.quidditch.dto.ClubStatistics;
 import hu.progmasters.finalexam.quidditch.repository.CoachRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
@@ -22,7 +23,6 @@ public class CoachService {
     private ModelMapper modelMapper;
 
 
-
     @Autowired
     public CoachService(CoachRepository coachRepository, ModelMapper modelMapper) {
         this.coachRepository = coachRepository;
@@ -40,7 +40,15 @@ public class CoachService {
         return coachOptional.get();
     }
 
-//    public void delete(Integer id) {
-//        Coach coach =
-//    }
+    public void delete(Integer id) {
+        Coach coach = findCoachById(id);
+        coach.setDeleted(true);
+        coach.setClub(null);
+    }
+
+    public ClubStatistics getSumAvgMaxAndMin(Long id) {
+        return coachRepository.getSumAvgMaxAndMin(id);
+    }
+
+
 }

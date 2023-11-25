@@ -11,12 +11,11 @@ import java.util.List;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-
 public class ClubPlayerInfo {
-        private Integer id;
-        private String name;
-        private Integer wins;
-        private String coachName;
-        private List<PlayerInfo> players;
-    }
+    private Integer id;
+    private String name;
+    private Integer wins;
+    private String coachName;
+    private List<PlayerInfo> players;
+}
 
