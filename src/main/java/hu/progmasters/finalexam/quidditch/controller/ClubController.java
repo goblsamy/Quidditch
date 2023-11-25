@@ -2,15 +2,13 @@ package hu.progmasters.finalexam.quidditch.controller;
 
 import hu.progmasters.finalexam.quidditch.dto.ClubCreateCommand;
 import hu.progmasters.finalexam.quidditch.dto.ClubInfo;
+import hu.progmasters.finalexam.quidditch.dto.ClubPlayerInfo;
 import hu.progmasters.finalexam.quidditch.service.ClubService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 
@@ -32,4 +30,12 @@ public class ClubController {
         ClubInfo clubInfo = clubService.saveClub(command);
         return new ResponseEntity<>(clubInfo, HttpStatus.CREATED);
     }
+
+    @PutMapping("/{clubId}")
+    public ResponseEntity<ClubPlayerInfo> clubWinsMatch(@PathVariable("clubId") Integer id) {
+        log.info("Http request, PUT / /api/clubs/{clubId} with variable: " + id);
+        ClubPlayerInfo clubPlayerInfo = clubService.update(id);
+        return new ResponseEntity<>(clubPlayerInfo, HttpStatus.OK);
+    }
+
 }

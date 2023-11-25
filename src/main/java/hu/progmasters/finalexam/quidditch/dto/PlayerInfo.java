@@ -15,7 +15,7 @@ import java.time.LocalDate;
 @NoArgsConstructor
 public class PlayerInfo {
 
-    private Integer id;
+    private Long id;
     private String name;
     private LocalDate joined;
     private PlayerType playerType;
