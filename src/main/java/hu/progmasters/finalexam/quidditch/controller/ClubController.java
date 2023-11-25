@@ -27,7 +27,7 @@ public class ClubController {
     }
 
     @PostMapping
-    public ResponseEntity<ClubInfo> save(@Valid @RequestBody ClubCreateCommand command) {
+    public ResponseEntity<ClubInfo> saveClub(@Valid @RequestBody ClubCreateCommand command) {
         log.info("Http request, POST / /api/clubs, body: " + command.toString());
         ClubInfo clubInfo = clubService.saveClub(command);
         return new ResponseEntity<>(clubInfo, HttpStatus.CREATED);

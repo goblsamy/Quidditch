@@ -20,7 +20,7 @@ public class Player {
     private String name;
 
     @Column(name = "joined")
-    private LocalDate localDate;
+    private LocalDate joined;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "player_type")
