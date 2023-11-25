@@ -13,7 +13,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -28,10 +27,14 @@ public class ClubService {
     private ModelMapper modelMapper;
 
 
+
+
     @Autowired
     public ClubService(ClubRepository clubRepository, ModelMapper modelMapper) {
         this.clubRepository = clubRepository;
         this.modelMapper = modelMapper;
+
+
     }
 
 
@@ -70,5 +73,20 @@ public class ClubService {
                 }).collect(Collectors.toList());
         clubPlayerInfo.setPlayers(playerInfoList);
         return clubPlayerInfo;
+    }
+
+
+    public String getSuperStar(Integer id) {
+        Club club = findClubById(id);
+        String result = "";
+        for (Player player : club.getPlayers()) {
+            if (player.getWins() > club.getWins()) {
+                result = "Yeah, we have a superstar";
+                return result;
+            } else {
+                result = "We are not a big club";
+            }
+        }
+        return result;
     }
 }

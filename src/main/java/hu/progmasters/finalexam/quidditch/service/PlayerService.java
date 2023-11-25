@@ -1,11 +1,10 @@
 package hu.progmasters.finalexam.quidditch.service;
 
-import com.mysql.cj.x.protobuf.MysqlxCursor;
 import hu.progmasters.finalexam.quidditch.domain.Club;
 import hu.progmasters.finalexam.quidditch.domain.Player;
-import hu.progmasters.finalexam.quidditch.domain.PlayerType;
 import hu.progmasters.finalexam.quidditch.dto.PlayerCreateCommand;
 import hu.progmasters.finalexam.quidditch.dto.PlayerInfo;
+import hu.progmasters.finalexam.quidditch.repository.ClubRepository;
 import hu.progmasters.finalexam.quidditch.repository.PlayerRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
@@ -26,22 +25,31 @@ public class PlayerService {
 
     private PlayerRepository playerRepository;
 
-    private ModelMapper modelMapper;
+    private ClubRepository clubRepository;
 
-    private ClubService clubService;
+    private ModelMapper modelMapper;
 
 
     @Autowired
-    public PlayerService(PlayerRepository playerRepository, ModelMapper modelMapper, ClubService clubService) {
+    public PlayerService(PlayerRepository playerRepository, ModelMapper modelMapper, ClubRepository clubRepository) {
         this.playerRepository = playerRepository;
         this.modelMapper = modelMapper;
-        this.clubService = clubService;
+        this.clubRepository = clubRepository;
+
     }
 
+    private Club findClubById(Integer id) {
+        Optional<Club> clubOptional = clubRepository.findById(id.longValue());
+        if (clubOptional.isEmpty()) {
+            //TODO sqaját exception!
+            throw new RuntimeException();
+        }
+        return clubOptional.get();
+    }
 
     public PlayerInfo savePlayer(PlayerCreateCommand command) {
         Player playerToSave = modelMapper.map(command, Player.class);
-        Club clubById = clubService.findClubById(command.getClubId());
+        Club clubById = findClubById(command.getClubId());
         playerToSave.setClub(clubById);
         Player savedPlayer = playerRepository.save(playerToSave);
         PlayerInfo playerInfo = modelMapper.map(savedPlayer, PlayerInfo.class);
@@ -49,7 +57,7 @@ public class PlayerService {
         return playerInfo;
     }
 
-    private Player findPlayerById(Integer id) {
+    public Player findPlayerById(Integer id) {
         Optional<Player> playerOptional = playerRepository.findById(id.longValue());
         if (playerOptional.isEmpty()) {
             //TODO Exceptiont írni!
@@ -60,7 +68,7 @@ public class PlayerService {
 
     public PlayerInfo update(Integer playerId, Integer clubId) {
         Player player = findPlayerById(playerId);
-        Club club = clubService.findClubById(clubId);
+        Club club = findClubById(clubId);
         if (playerId.equals(clubId)) {
             //TODO Exceptiont írni!
             throw new RuntimeException();
