@@ -41,4 +41,11 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(List.of(validationError), HttpStatus.BAD_REQUEST);
     }
 
+    @ExceptionHandler(PlayernotFoundException.class)
+    public ResponseEntity<List<ValidationError>> handlePlayerNotFoundException(PlayernotFoundException exception) {
+        ValidationError validationError = new ValidationError("playerId",
+                "player not found with id: " + exception.getPLAYER_ID());
+        log.error("Error in validation: " + validationError.getField() + ": " + validationError.getErrorMessage());
+        return new ResponseEntity<>(List.of(validationError), HttpStatus.BAD_REQUEST);
+    }
 }

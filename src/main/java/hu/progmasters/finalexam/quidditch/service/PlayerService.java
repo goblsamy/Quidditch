@@ -7,6 +7,7 @@ import hu.progmasters.finalexam.quidditch.dto.PlayerCreateCommand;
 import hu.progmasters.finalexam.quidditch.dto.PlayerInfo;
 import hu.progmasters.finalexam.quidditch.exceptionhandling.ClubNotFoundException;
 import hu.progmasters.finalexam.quidditch.exceptionhandling.NotEnoughSpaceOnThisPost;
+import hu.progmasters.finalexam.quidditch.exceptionhandling.PlayernotFoundException;
 import hu.progmasters.finalexam.quidditch.repository.ClubRepository;
 import hu.progmasters.finalexam.quidditch.repository.PlayerRepository;
 import lombok.extern.slf4j.Slf4j;
@@ -44,7 +45,7 @@ public class PlayerService {
     private Club findClubById(Integer id) {
         Optional<Club> clubOptional = clubRepository.findById(id.longValue());
         if (clubOptional.isEmpty()) {
-            //TODO sqaját exception!
+
             throw new ClubNotFoundException(id);
         }
         return clubOptional.get();
@@ -70,8 +71,8 @@ public class PlayerService {
     public Player findPlayerById(Integer id) {
         Optional<Player> playerOptional = playerRepository.findById(id.longValue());
         if (playerOptional.isEmpty()) {
-            //TODO Exceptiont írni!
-            throw new RuntimeException();
+
+            throw new PlayernotFoundException(id);
         }
         return playerOptional.get();
     }
@@ -80,8 +81,8 @@ public class PlayerService {
         Player player = findPlayerById(playerId);
         Club club = findClubById(clubId);
         if (playerId.equals(clubId)) {
-            //TODO Exceptiont írni!
-            throw new RuntimeException();
+
+            throw new PlayernotFoundException(playerId);
         }
         player.setClub(club);
         player.setJoined(LocalDate.now());
