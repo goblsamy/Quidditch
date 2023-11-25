@@ -16,7 +16,6 @@ import static java.time.LocalDate.*;
 @AllArgsConstructor
 public class PlayerCreateCommand {
 
-    private static final LocalDate localDate = LocalDate.of(2023, 11, 25);
 
     @NotNull(message = "Name cannot be null!")
     @NotBlank(message = "Name cannot be blank!")
@@ -24,7 +23,7 @@ public class PlayerCreateCommand {
     private String name;
 
     @NotNull(message = "Joined cannot be null!")
-    //TODO csak múltbeli lehet!
+    @Past
     private LocalDate joined;
 
     @NotNull(message = "Type cannot be null!")

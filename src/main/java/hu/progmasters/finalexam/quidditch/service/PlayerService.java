@@ -2,9 +2,11 @@ package hu.progmasters.finalexam.quidditch.service;
 
 import hu.progmasters.finalexam.quidditch.domain.Club;
 import hu.progmasters.finalexam.quidditch.domain.Player;
+import hu.progmasters.finalexam.quidditch.domain.PlayerType;
 import hu.progmasters.finalexam.quidditch.dto.PlayerCreateCommand;
 import hu.progmasters.finalexam.quidditch.dto.PlayerInfo;
 import hu.progmasters.finalexam.quidditch.exceptionhandling.ClubNotFoundException;
+import hu.progmasters.finalexam.quidditch.exceptionhandling.NotEnoughSpaceOnThisPost;
 import hu.progmasters.finalexam.quidditch.repository.ClubRepository;
 import hu.progmasters.finalexam.quidditch.repository.PlayerRepository;
 import lombok.extern.slf4j.Slf4j;
@@ -51,12 +53,19 @@ public class PlayerService {
     public PlayerInfo savePlayer(PlayerCreateCommand command) {
         Player playerToSave = modelMapper.map(command, Player.class);
         Club clubById = findClubById(command.getClubId());
-        playerToSave.setClub(clubById);
-        Player savedPlayer = playerRepository.save(playerToSave);
-        PlayerInfo playerInfo = modelMapper.map(savedPlayer, PlayerInfo.class);
-        playerInfo.setClubName(savedPlayer.getClub().getName());
-        return playerInfo;
+        if (!playerRepository.isThereFreeSpaceInTeam(command.getPlayerType(),
+                command.getClubId(), command.getPlayerType().getMaxPlayerFromType())) {
+            playerToSave.setClub(clubById);
+            Player savedPlayer = playerRepository.save(playerToSave);
+            PlayerInfo playerInfo = modelMapper.map(savedPlayer, PlayerInfo.class);
+            playerInfo.setClubName(savedPlayer.getClub().getName());
+            return playerInfo;
+        } else {
+            throw new NotEnoughSpaceOnThisPost();
+
+        }
     }
+
 
     public Player findPlayerById(Integer id) {
         Optional<Player> playerOptional = playerRepository.findById(id.longValue());
@@ -84,4 +93,5 @@ public class PlayerService {
                 .map(player -> modelMapper.map(player, PlayerInfo.class))
                 .collect(Collectors.toList());
     }
+
 }

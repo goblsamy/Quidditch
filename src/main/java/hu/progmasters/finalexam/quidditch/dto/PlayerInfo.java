@@ -14,7 +14,6 @@ import java.time.LocalDate;
 @AllArgsConstructor
 @NoArgsConstructor
 public class PlayerInfo {
-
     private Long id;
     private String name;
     private LocalDate joined;

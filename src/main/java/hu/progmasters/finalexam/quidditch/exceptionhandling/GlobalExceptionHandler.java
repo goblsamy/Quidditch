@@ -32,4 +32,13 @@ public class GlobalExceptionHandler {
         log.error("Error in validation: " + validationError.getField() + ": " + validationError.getErrorMessage());
         return new ResponseEntity<>(List.of(validationError), HttpStatus.BAD_REQUEST);
     }
+
+    @ExceptionHandler(NotEnoughSpaceOnThisPost.class)
+    public ResponseEntity<List<ValidationError>> handleNotEnoughSpaceOnThisPostException(NotEnoughSpaceOnThisPost exception) {
+        ValidationError validationError = new ValidationError("",
+                "All posts are taken!");
+        log.error("Error in validation: " + validationError.getField() + ": " + validationError.getErrorMessage());
+        return new ResponseEntity<>(List.of(validationError), HttpStatus.BAD_REQUEST);
+    }
+
 }
