@@ -4,6 +4,7 @@ import hu.progmasters.finalexam.quidditch.domain.Club;
 import hu.progmasters.finalexam.quidditch.domain.Player;
 import hu.progmasters.finalexam.quidditch.dto.PlayerCreateCommand;
 import hu.progmasters.finalexam.quidditch.dto.PlayerInfo;
+import hu.progmasters.finalexam.quidditch.exceptionhandling.ClubNotFoundException;
 import hu.progmasters.finalexam.quidditch.repository.ClubRepository;
 import hu.progmasters.finalexam.quidditch.repository.PlayerRepository;
 import lombok.extern.slf4j.Slf4j;
@@ -42,7 +43,7 @@ public class PlayerService {
         Optional<Club> clubOptional = clubRepository.findById(id.longValue());
         if (clubOptional.isEmpty()) {
             //TODO sqaját exception!
-            throw new RuntimeException();
+            throw new ClubNotFoundException(id);
         }
         return clubOptional.get();
     }

@@ -24,4 +24,12 @@ public class GlobalExceptionHandler {
         });
         return new ResponseEntity<>(validationErrors, HttpStatus.BAD_REQUEST);
     }
+
+    @ExceptionHandler(ClubNotFoundException.class)
+    public ResponseEntity<List<ValidationError>> handleClubNotFoundException(ClubNotFoundException exception) {
+        ValidationError validationError = new ValidationError("clubId",
+                "Club not found with id: " + exception.getCLUB_ID());
+        log.error("Error in validation: " + validationError.getField() + ": " + validationError.getErrorMessage());
+        return new ResponseEntity<>(List.of(validationError), HttpStatus.BAD_REQUEST);
+    }
 }
