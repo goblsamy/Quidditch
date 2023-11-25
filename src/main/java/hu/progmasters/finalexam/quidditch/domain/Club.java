@@ -22,7 +22,7 @@ public class Club {
     @Column(name = "wins")
     private Integer wins;
 
-    @OneToMany(mappedBy = "player")
+    @OneToMany(mappedBy = "club")
     private List<Player> players;
 
     @OneToOne(mappedBy = "club")
