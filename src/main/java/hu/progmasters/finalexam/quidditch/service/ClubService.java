@@ -27,8 +27,6 @@ public class ClubService {
     private ModelMapper modelMapper;
 
 
-
-
     @Autowired
     public ClubService(ClubRepository clubRepository, ModelMapper modelMapper) {
         this.clubRepository = clubRepository;

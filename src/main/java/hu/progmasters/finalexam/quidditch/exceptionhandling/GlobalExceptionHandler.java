@@ -48,4 +48,13 @@ public class GlobalExceptionHandler {
         log.error("Error in validation: " + validationError.getField() + ": " + validationError.getErrorMessage());
         return new ResponseEntity<>(List.of(validationError), HttpStatus.BAD_REQUEST);
     }
+
+    @ExceptionHandler(CoachNotFoundByIdExcepiton.class)
+    public ResponseEntity<List<ValidationError>> handleCoachNotFoundException(CoachNotFoundByIdExcepiton exception) {
+        ValidationError validationError = new ValidationError("coachId",
+                "coach not found with id: " + exception.getCOACH_ID());
+        log.error("Error in validation: " + validationError.getField() + ": " + validationError.getErrorMessage());
+        return new ResponseEntity<>(List.of(validationError), HttpStatus.BAD_REQUEST);
+    }
+
 }

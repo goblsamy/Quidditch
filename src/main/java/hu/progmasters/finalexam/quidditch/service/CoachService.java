@@ -4,6 +4,7 @@ import hu.progmasters.finalexam.quidditch.domain.Club;
 import hu.progmasters.finalexam.quidditch.domain.Coach;
 import hu.progmasters.finalexam.quidditch.domain.Player;
 import hu.progmasters.finalexam.quidditch.dto.ClubStatistics;
+import hu.progmasters.finalexam.quidditch.exceptionhandling.CoachNotFoundByIdExcepiton;
 import hu.progmasters.finalexam.quidditch.repository.CoachRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
@@ -34,8 +35,8 @@ public class CoachService {
     public Coach findCoachById(Integer id) {
         Optional<Coach> coachOptional = coachRepository.findById(id.longValue());
         if (coachOptional.isEmpty()) {
-            //TODO Exceptiont írni!
-            throw new RuntimeException();
+
+            throw new CoachNotFoundByIdExcepiton(id);
         }
         return coachOptional.get();
     }
