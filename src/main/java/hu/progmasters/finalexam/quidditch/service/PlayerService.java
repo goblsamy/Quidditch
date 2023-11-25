@@ -38,6 +38,8 @@ public class PlayerService {
         Club clubById = clubService.findClubById(command.getClubId());
         playerToSave.setClub(clubById);
         Player savedPlayer = playerRepository.save(playerToSave);
-        return modelMapper.map(savedPlayer, PlayerInfo.class);
+        PlayerInfo playerInfo = modelMapper.map(savedPlayer, PlayerInfo.class);
+        playerInfo.setClubName(savedPlayer.getClub().getName());
+        return playerInfo;
     }
 }

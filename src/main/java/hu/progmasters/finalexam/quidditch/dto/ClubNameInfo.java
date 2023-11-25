@@ -7,8 +7,6 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class ClubInfo {
-    private Integer id;
+public class ClubNameInfo {
     private String name;
-    private Integer wins;
 }

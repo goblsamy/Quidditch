@@ -20,5 +20,5 @@ public class PlayerInfo {
     private LocalDate joined;
     private PlayerType playerType;
     private Integer wins;
-    private ClubInfo clubInfo;
+    private String clubName;
 }
