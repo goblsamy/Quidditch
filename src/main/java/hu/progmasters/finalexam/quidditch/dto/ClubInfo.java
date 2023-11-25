@@ -9,5 +9,6 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class ClubInfo {
     private Integer clubId;
+    private String name;
     private Integer wins;
 }
