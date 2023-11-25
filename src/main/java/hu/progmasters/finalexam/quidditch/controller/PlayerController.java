@@ -7,12 +7,10 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/players")
@@ -31,5 +29,20 @@ public class PlayerController {
         log.info("Http request, POST / /api/players, body: " + command.toString());
         PlayerInfo playerInfo = playerService.savePlayer(command);
         return new ResponseEntity<PlayerInfo>(playerInfo, HttpStatus.CREATED);
+    }
+
+    @PutMapping("/{playerId}/club/{clubId}")
+    public ResponseEntity<PlayerInfo> playerChangesClub(@PathVariable("playerId") Integer playerId,
+                                                        @PathVariable("clubId") Integer clubId) {
+        log.info("Http request, PUT / /api/players/{playerId}/club/{clubId} with variable: " + playerId + " and " + clubId);
+        PlayerInfo playerInfo = playerService.update(playerId, clubId);
+        return new ResponseEntity<>(playerInfo, HttpStatus.ACCEPTED);
+    }
+
+    @GetMapping
+    public ResponseEntity<List<PlayerInfo>> findAll() {
+        log.info("Http request, GET / /api/players");
+        List<PlayerInfo> playerInfoList = playerService.listPlayers();
+        return new ResponseEntity<>(playerInfoList, HttpStatus.OK);
     }
 }
