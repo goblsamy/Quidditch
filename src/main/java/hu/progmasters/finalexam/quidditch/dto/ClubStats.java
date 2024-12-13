@@ -7,9 +7,12 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class ClubInfo {
+public class ClubStats {
 
-    private Long id;
-    private String name;
-    private int wins;
+    private int clubWins;
+    private double playersAvgWins;
+    private int biggestPlayerWin;
+    private int lowestPlayerWin;
+
+
 }

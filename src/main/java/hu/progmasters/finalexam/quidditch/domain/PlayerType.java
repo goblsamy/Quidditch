@@ -1,7 +1,5 @@
 package hu.progmasters.finalexam.quidditch.domain;
 
-import javax.persistence.criteria.CriteriaBuilder;
-
 public enum PlayerType {
 
     CHASER(3),
@@ -9,13 +7,13 @@ public enum PlayerType {
     KEEPER(1),
     SEEKER(1);
 
-    private Integer maxPlayerFromType;
+    private final int maxPlayerFromType;
 
-    PlayerType(Integer maxPlayerFromType) {
+    PlayerType(int maxPlayerFromType) {
         this.maxPlayerFromType = maxPlayerFromType;
     }
 
-    public Integer getMaxPlayerFromType() {
+    public int getMaxPlayerFromType() {
         return maxPlayerFromType;
     }
 }

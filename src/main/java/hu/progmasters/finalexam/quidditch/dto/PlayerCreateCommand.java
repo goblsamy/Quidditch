@@ -5,35 +5,34 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import javax.validation.constraints.*;
-import java.sql.Date;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Past;
 import java.time.LocalDate;
-
-import static java.time.LocalDate.*;
 
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 public class PlayerCreateCommand {
 
-
-    @NotNull(message = "Name cannot be null!")
-    @NotBlank(message = "Name cannot be blank!")
-    @NotEmpty(message = "Name cannot be empty!")
+    @NotNull(message = "Cannot be null!")
+    @NotBlank(message = "Cannot be blank!")
+    @NotEmpty(message = "Cannot be empty")
     private String name;
 
-    @NotNull(message = "Joined cannot be null!")
-    @Past
+    @NotNull(message = "Cannot be null!")
+    @Past(message = "The date must be in the past")
     private LocalDate joined;
 
-    @NotNull(message = "Type cannot be null!")
+    @Enumerated(EnumType.STRING)
+    @NotNull(message = "Cannot be null!")
     private PlayerType playerType;
 
-    @NotNull(message = "Wins cannot be null!")
-    @Min(value = 0, message = "Wins cannot be lower than 0!")
-    private Integer wins;
+    private int wins;
 
-    @NotNull(message = "Club Id cannot be null!")
-    @Min(value = 1, message = "Club id cannot be lower than 1!")
-    private Integer clubId;
+    @NotNull(message = "Cannot be null!")
+    private int clubId;
 }

@@ -1,55 +1,45 @@
 package hu.progmasters.finalexam.quidditch.service;
 
-import hu.progmasters.finalexam.quidditch.domain.Club;
 import hu.progmasters.finalexam.quidditch.domain.Coach;
-import hu.progmasters.finalexam.quidditch.domain.Player;
-import hu.progmasters.finalexam.quidditch.dto.ClubStatistics;
-import hu.progmasters.finalexam.quidditch.exceptionhandling.CoachNotFoundByIdExcepiton;
+import hu.progmasters.finalexam.quidditch.dto.ClubStats;
+import hu.progmasters.finalexam.quidditch.exceptions.CoachNotFoundException;
+import hu.progmasters.finalexam.quidditch.exceptions.NoPlayersInThisClubException;
 import hu.progmasters.finalexam.quidditch.repository.CoachRepository;
-import lombok.extern.slf4j.Slf4j;
-import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
-import javax.transaction.Transactional;
-import java.util.Optional;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @Transactional
-@Slf4j
 public class CoachService {
+
 
     private CoachRepository coachRepository;
 
-    private ModelMapper modelMapper;
-
+    private ClubService clubService;
 
     @Autowired
-    public CoachService(CoachRepository coachRepository, ModelMapper modelMapper) {
+    public CoachService(CoachRepository coachRepository, ClubService clubService) {
         this.coachRepository = coachRepository;
-        this.modelMapper = modelMapper;
-
+        this.clubService = clubService;
     }
 
-
-    public Coach findCoachById(Integer id) {
-        Optional<Coach> coachOptional = coachRepository.findById(id.longValue());
-        if (coachOptional.isEmpty()) {
-
-            throw new CoachNotFoundByIdExcepiton(id);
-        }
-        return coachOptional.get();
-    }
-
-    public void delete(Integer id) {
-        Coach coach = findCoachById(id);
+    public void deleteCoach(long coachId) {
+        Coach coach = findById(coachId);
         coach.setDeleted(true);
         coach.setClub(null);
+        coachRepository.save(coach);
     }
 
-    public ClubStatistics getSumAvgMaxAndMin(Long id) {
-        return coachRepository.getSumAvgMaxAndMin(id);
+    public ClubStats clubStats(long coachId) {
+        Coach coach = findById(coachId);
+        return coachRepository.getStatistics(coach.getId()).orElseThrow(() -> new NoPlayersInThisClubException(coachId));
+
     }
 
-
+    public Coach findById(long coachId) {
+        return coachRepository.findCoachById(coachId)
+                .orElseThrow(() -> new CoachNotFoundException(coachId));
+    }
 }
+

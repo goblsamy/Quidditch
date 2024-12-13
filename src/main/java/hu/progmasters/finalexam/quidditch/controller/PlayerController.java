@@ -17,32 +17,34 @@ import java.util.List;
 @Slf4j
 public class PlayerController {
 
-    private PlayerService playerService;
+    private final PlayerService playerService;
 
     @Autowired
     public PlayerController(PlayerService playerService) {
         this.playerService = playerService;
     }
 
+
     @PostMapping
     public ResponseEntity<PlayerInfo> savePlayer(@Valid @RequestBody PlayerCreateCommand command) {
-        log.info("Http request, POST / /api/players, body: " + command.toString());
+        log.info("http req POST /api/players with body: " + command.toString());
         PlayerInfo playerInfo = playerService.savePlayer(command);
-        return new ResponseEntity<PlayerInfo>(playerInfo, HttpStatus.CREATED);
+        return new ResponseEntity<>(playerInfo, HttpStatus.CREATED);
     }
 
+
     @PutMapping("/{playerId}/club/{clubId}")
-    public ResponseEntity<PlayerInfo> playerChangesClub(@PathVariable("playerId") Integer playerId,
-                                                        @PathVariable("clubId") Integer clubId) {
-        log.info("Http request, PUT / /api/players/{playerId}/club/{clubId} with variable: " + playerId + " and " + clubId);
-        PlayerInfo playerInfo = playerService.update(playerId, clubId);
-        return new ResponseEntity<>(playerInfo, HttpStatus.ACCEPTED);
+    public ResponseEntity<PlayerInfo> playerTransfers(@PathVariable Long playerId, @PathVariable Long clubId) {
+        log.info("http req PUT /api/players/" + playerId + "/" + clubId);
+        PlayerInfo playerInfo = playerService.transferPlayer(playerId, clubId);
+        return new ResponseEntity<>(playerInfo, HttpStatus.OK);
     }
 
     @GetMapping
-    public ResponseEntity<List<PlayerInfo>> findAll() {
-        log.info("Http request, GET / /api/players");
-        List<PlayerInfo> playerInfoList = playerService.listPlayers();
+    public ResponseEntity<List<PlayerInfo>> listAll() {
+        log.info("http req GET /api/players");
+        List<PlayerInfo> playerInfoList = playerService.findAll();
         return new ResponseEntity<>(playerInfoList, HttpStatus.OK);
+
     }
 }

@@ -4,8 +4,9 @@ import hu.progmasters.finalexam.quidditch.domain.Club;
 import hu.progmasters.finalexam.quidditch.domain.Player;
 import hu.progmasters.finalexam.quidditch.dto.ClubCreateCommand;
 import hu.progmasters.finalexam.quidditch.dto.ClubInfo;
-import hu.progmasters.finalexam.quidditch.dto.ClubPlayerInfo;
+import hu.progmasters.finalexam.quidditch.dto.ClubWins;
 import hu.progmasters.finalexam.quidditch.dto.PlayerInfo;
+import hu.progmasters.finalexam.quidditch.exceptions.ClubNotFoundException;
 import hu.progmasters.finalexam.quidditch.repository.ClubRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
@@ -22,9 +23,8 @@ import java.util.stream.Collectors;
 @Slf4j
 public class ClubService {
 
-    private ClubRepository clubRepository;
-
-    private ModelMapper modelMapper;
+    private final ClubRepository clubRepository;
+    private final ModelMapper modelMapper;
 
 
     @Autowired
@@ -32,59 +32,43 @@ public class ClubService {
         this.clubRepository = clubRepository;
         this.modelMapper = modelMapper;
 
-
     }
-
 
     public ClubInfo saveClub(ClubCreateCommand command) {
         Club club = modelMapper.map(command, Club.class);
-        Club savedClub = clubRepository.save(club);
-        return modelMapper.map(savedClub, ClubInfo.class);
+        clubRepository.save(club);
+        return modelMapper.map(club, ClubInfo.class);
     }
 
-    public Club findClubById(Integer clubId) {
-        Optional<Club> clubOptional = clubRepository.findById(clubId.longValue());
-        if (clubOptional.isEmpty()) {
-            //TODO sqaját exception!
-            throw new RuntimeException();
+    public Club findClubById(long clubId) {
+        Optional<Club> clubOptional = clubRepository.findById(clubId);
+        if (clubOptional.isPresent()) {
+            return clubOptional.get();
+        } else {
+            throw new ClubNotFoundException(clubId);
         }
-        return clubOptional.get();
     }
 
-    public ClubPlayerInfo update(Integer id) {
-        Club clubById = findClubById(id);
-        clubById.setWins(clubById.getWins() + 1);
-        for (Player player : clubById.getPlayers()) {
-            player.setWins(player.getWins() + 1);
-        }
-        ClubPlayerInfo clubPlayerInfo = modelMapper.map(clubById, ClubPlayerInfo.class);
-        List<PlayerInfo> playerInfoList = clubById.getPlayers().stream()
+    public ClubWins winMatch(Integer id) {
+        Club club = findClubById(id);
+        club.setWins(club.getWins() + 1);
+        List<Player> players = club.getPlayers();
+        players.forEach(player -> player.setWins(player.getWins() + 1));
+        List<PlayerInfo> collect = players.stream()
                 .map(player -> {
-                    PlayerInfo playerInfo = new PlayerInfo();
-                    playerInfo.setId(player.getId());
-                    playerInfo.setWins(player.getWins());
-                    playerInfo.setName(player.getName());
-                    playerInfo.setJoined(player.getJoined());
-                    playerInfo.setPlayerType(player.getPlayerType());
+                    PlayerInfo playerInfo = modelMapper.map(player, PlayerInfo.class);
                     playerInfo.setClubName(player.getClub().getName());
                     return playerInfo;
-                }).collect(Collectors.toList());
-        clubPlayerInfo.setPlayers(playerInfoList);
-        return clubPlayerInfo;
+                })
+                .collect(Collectors.toList());
+        ClubWins clubWins = modelMapper.map(club, ClubWins.class);
+        clubWins.setCoachName(club.getCoach().getName());
+        clubWins.setPlayers(collect);
+        return clubWins;
     }
 
-
-    public String getSuperStar(Integer id) {
-        Club club = findClubById(id);
-        String result = "";
-        for (Player player : club.getPlayers()) {
-            if (player.getWins() > club.getWins()) {
-                result = "Yeah, we have a superstar";
-                return result;
-            } else {
-                result = "We are not a big club";
-            }
-        }
-        return result;
+    public String isThereASuperStar(Integer id) {
+        boolean isThereASuperStar = clubRepository.hasSuperstarPlayer(Long.valueOf(id));
+        return isThereASuperStar ? "Yes, we have a superstar!" : "We are not a big club";
     }
 }

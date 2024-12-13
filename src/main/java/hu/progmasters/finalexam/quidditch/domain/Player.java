@@ -8,26 +8,22 @@ import java.time.LocalDate;
 
 @Entity
 @Table(name = "player")
-@NoArgsConstructor
 @Data
+@NoArgsConstructor
 public class Player {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "name")
     private String name;
 
-    @Column(name = "joined")
     private LocalDate joined;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "player_type")
     private PlayerType playerType;
 
-    @Column(name = "wins")
-    private Integer wins;
+    private int wins;
 
     @ManyToOne
     @JoinColumn(name = "club_id")

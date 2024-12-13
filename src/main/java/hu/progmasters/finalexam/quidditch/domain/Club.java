@@ -8,23 +8,23 @@ import java.util.List;
 
 @Entity
 @Table(name = "club")
-@NoArgsConstructor
 @Data
+@NoArgsConstructor
 public class Club {
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "name")
     private String name;
 
-    @Column(name = "wins")
-    private Integer wins;
+    private int wins;
 
-    @OneToMany(mappedBy = "club")
+    @OneToMany(mappedBy = "club" )
     private List<Player> players;
 
     @OneToOne(mappedBy = "club")
     private Coach coach;
+
+
+
 }

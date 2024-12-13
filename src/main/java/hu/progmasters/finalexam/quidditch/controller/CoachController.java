@@ -1,6 +1,6 @@
 package hu.progmasters.finalexam.quidditch.controller;
 
-import hu.progmasters.finalexam.quidditch.dto.ClubStatistics;
+import hu.progmasters.finalexam.quidditch.dto.ClubStats;
 import hu.progmasters.finalexam.quidditch.service.CoachService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.*;
 @Slf4j
 public class CoachController {
 
-    private CoachService coachService;
+    private final CoachService coachService;
 
     @Autowired
     public CoachController(CoachService coachService) {
@@ -21,18 +21,18 @@ public class CoachController {
     }
 
     @DeleteMapping("/{coachId}")
-    public ResponseEntity<Void> deleteCoachById(@PathVariable("coachId") Integer id) {
-        log.info("Http request, DELETE / api/coaches/{coachId}");
-        coachService.delete(id);
+    public ResponseEntity<Void> deleteCoach(@PathVariable long coachId) {
+        log.info("http req DELETE /coaches/" + coachId);
+        coachService.deleteCoach(coachId);
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
-
     @GetMapping("/statistics/{coachId}")
-    public ResponseEntity<ClubStatistics> getWinningStatistics(@PathVariable("coachId") Integer id) {
-        log.info("Http request, GET / /api/coaches/statistics/{coachId} with variable. " + id);
-        ClubStatistics clubStatistics = coachService.getSumAvgMaxAndMin(id.longValue());
-        return new ResponseEntity<>(clubStatistics, HttpStatus.OK);
-    }
+    public ResponseEntity<ClubStats> getClubStatistics(@PathVariable("coachId") long coachId) {
+        log.info("http req GET /coaches/" + coachId);
+        ClubStats clubStats = coachService.clubStats(coachId);
+        return new ResponseEntity<>(clubStats, HttpStatus.OK);
 
+    }
 }
+

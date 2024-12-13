@@ -7,22 +7,18 @@ import javax.persistence.*;
 
 @Entity
 @Table(name = "coach")
-@NoArgsConstructor
 @Data
+@NoArgsConstructor
 public class Coach {
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "name")
     private String name;
 
-    @Column(name = "deleted")
     private Boolean deleted;
 
     @OneToOne
-    @JoinColumn(name = "club_id", unique = true)
+    @JoinColumn(name = "club_id")
     private Club club;
-
 }

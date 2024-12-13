@@ -1,14 +1,13 @@
 package hu.progmasters.finalexam.quidditch.service;
 
+
 import hu.progmasters.finalexam.quidditch.domain.Club;
 import hu.progmasters.finalexam.quidditch.domain.Player;
-import hu.progmasters.finalexam.quidditch.domain.PlayerType;
 import hu.progmasters.finalexam.quidditch.dto.PlayerCreateCommand;
 import hu.progmasters.finalexam.quidditch.dto.PlayerInfo;
-import hu.progmasters.finalexam.quidditch.exceptionhandling.ClubNotFoundException;
-import hu.progmasters.finalexam.quidditch.exceptionhandling.NotEnoughSpaceOnThisPost;
-import hu.progmasters.finalexam.quidditch.exceptionhandling.PlayernotFoundException;
-import hu.progmasters.finalexam.quidditch.repository.ClubRepository;
+import hu.progmasters.finalexam.quidditch.exceptions.CurrentIdAndGivenMatchesException;
+import hu.progmasters.finalexam.quidditch.exceptions.NoFreePlaceOnPositionException;
+import hu.progmasters.finalexam.quidditch.exceptions.PlayerNotFoundByIdException;
 import hu.progmasters.finalexam.quidditch.repository.PlayerRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
@@ -26,73 +25,79 @@ import java.util.stream.Collectors;
 @Slf4j
 public class PlayerService {
 
-
-    private PlayerRepository playerRepository;
-
-    private ClubRepository clubRepository;
-
-    private ModelMapper modelMapper;
-
+    private final PlayerRepository playerRepository;
+    private final ModelMapper modelMapper;
+    private final ClubService clubService;
 
     @Autowired
-    public PlayerService(PlayerRepository playerRepository, ModelMapper modelMapper, ClubRepository clubRepository) {
+    public PlayerService(PlayerRepository playerRepository, ModelMapper modelMapper, ClubService clubService) {
         this.playerRepository = playerRepository;
         this.modelMapper = modelMapper;
-        this.clubRepository = clubRepository;
-
-    }
-
-    private Club findClubById(Integer id) {
-        Optional<Club> clubOptional = clubRepository.findById(id.longValue());
-        if (clubOptional.isEmpty()) {
-
-            throw new ClubNotFoundException(id);
-        }
-        return clubOptional.get();
+        this.clubService = clubService;
     }
 
     public PlayerInfo savePlayer(PlayerCreateCommand command) {
-        Player playerToSave = modelMapper.map(command, Player.class);
-        Club clubById = findClubById(command.getClubId());
-        if (!playerRepository.isThereFreeSpaceInTeam(command.getPlayerType(),
-                command.getClubId(), command.getPlayerType().getMaxPlayerFromType())) {
-            playerToSave.setClub(clubById);
-            Player savedPlayer = playerRepository.save(playerToSave);
-            PlayerInfo playerInfo = modelMapper.map(savedPlayer, PlayerInfo.class);
-            playerInfo.setClubName(savedPlayer.getClub().getName());
-            return playerInfo;
-        } else {
-            throw new NotEnoughSpaceOnThisPost();
+        Player player = modelMapper.map(command, Player.class);
+        Club clubById = clubService.findClubById(command.getClubId());
+        player.setClub(clubById);
+        playerRepository.save(player);
+        PlayerInfo playerInfoToSave = modelMapper.map(player, PlayerInfo.class);
+        playerInfoToSave.setClubName(clubById.getName());
+        List<PlayerInfo> playerInfoList = listPlayers();
+        List<PlayerInfo> collect = playerInfoList.stream().filter(playerInfo1 -> playerInfo1.getPlayerType()
+                        .equals(playerInfoToSave.getPlayerType()) && playerInfo1.getClubName()
+                        .equals(playerInfoToSave.getClubName()))
+                .collect(Collectors.toList());
 
+        if (collect.size() >= playerInfoToSave.getPlayerType().getMaxPlayerFromType()) {
+            throw new NoFreePlaceOnPositionException(playerInfoToSave.getPlayerType(), Math.toIntExact(player.getClub().getId()));
         }
+
+
+        return playerInfoToSave;
     }
 
-
-    public Player findPlayerById(Integer id) {
-        Optional<Player> playerOptional = playerRepository.findById(id.longValue());
-        if (playerOptional.isEmpty()) {
-
-            throw new PlayernotFoundException(id);
-        }
-        return playerOptional.get();
-    }
-
-    public PlayerInfo update(Integer playerId, Integer clubId) {
-        Player player = findPlayerById(playerId);
-        Club club = findClubById(clubId);
-        if (playerId.equals(clubId)) {
-
-            throw new PlayernotFoundException(playerId);
-        }
-        player.setClub(club);
-        player.setJoined(LocalDate.now());
-        return modelMapper.map(player, PlayerInfo.class);
-    }
 
     public List<PlayerInfo> listPlayers() {
         return playerRepository.findAll().stream()
-                .map(player -> modelMapper.map(player, PlayerInfo.class))
-                .collect(Collectors.toList());
+                .map(player -> {
+                    PlayerInfo playerInfoToSave = modelMapper.map(player, PlayerInfo.class);
+                    playerInfoToSave.setClubName(player.getClub().getName());
+                    return playerInfoToSave;
+                }).collect(Collectors.toList());
     }
 
+    public PlayerInfo transferPlayer(Long playerId, Long clubId) {
+        Player player = findPlayerById(playerId);
+        Club club = clubService.findClubById(clubId);
+        int count = playerRepository.countByPlayerTypeAndClub(player.getPlayerType(), clubId);
+        if (count >= player.getPlayerType().getMaxPlayerFromType()) {
+            throw new NoFreePlaceOnPositionException(player.getPlayerType(), Math.toIntExact(player.getClub().getId()));
+        } else if (clubId.equals(player.getClub().getId())) {
+            throw new CurrentIdAndGivenMatchesException(clubId);
+        }
+        player.setClub(club);
+        player.setJoined(LocalDate.now());
+        PlayerInfo playerInfo = modelMapper.map(player, PlayerInfo.class);
+        playerInfo.setClubName(club.getName());
+        return playerInfo;
+    }
+
+    public Player findPlayerById(Long playerId) {
+        Optional<Player> playerOptional = playerRepository.findById(playerId);
+        if (playerOptional.isPresent()) {
+            return playerOptional.get();
+        } else {
+            throw new PlayerNotFoundByIdException(playerId);
+        }
+    }
+
+    public List<PlayerInfo> findAll() {
+        return playerRepository.findAllOrderByJoinedDescWinsAsc().stream()
+                .map(player -> {
+                    PlayerInfo playerInfoToSave = modelMapper.map(player, PlayerInfo.class);
+                    playerInfoToSave.setClubName(player.getClub().getName());
+                    return playerInfoToSave;
+                }).collect(Collectors.toList());
+    }
 }
