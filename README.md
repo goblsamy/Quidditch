@@ -1,4 +1,4 @@
-# Záróvizsga - Kviddics menedzser app (110 pont)
+# Kviddics menedzser app (110 pont)
 
 Hozz létre egy alkalmazást, amivel kviddics klubokat, játékosokat és edzőket lehet menedzselni!
 
